@@ -197,7 +197,7 @@ def setup():
             border-radius: 32px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
             transition: box-shadow 0.2s;
-            padding: 14px 32px;
+            padding: 16px 32px;
         }
         
         .search-form:focus-within {
@@ -214,21 +214,79 @@ def setup():
             border: none;
             outline: none;
             width: 100%;
-            font-size: 14px;
+            font-size: 16px;
             resize: none;
             background: transparent;
+            padding: 8px 0 4px;
+            margin-bottom: 0;
+        }
+        
+        .search-examples {
+            margin-top: 8px;
+            margin-bottom: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--airbnb-border);
+        }
+        
+        .examples-title {
+            font-size: 14px;
+            color: var(--airbnb-gray);
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .example-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .example-chip {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--airbnb-light-gray);
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--airbnb-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--airbnb-border);
+            white-space: nowrap;
+        }
+        
+        .example-chip:hover {
+            background-color: var(--airbnb-border);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .example-chip.expanded {
+            width: 100%;
+            white-space: normal;
+            border-color: var(--airbnb-red);
+            background-color: #FFF8F8;
+            padding: 12px 16px;
+            line-height: 1.4;
+            font-weight: normal;
+            border-radius: 12px;
         }
         
         .search-button {
             background-color: var(--airbnb-red);
             color: white;
-            padding: 14px 24px;
+            padding: 12px 24px;
             border-radius: 24px;
             font-size: 16px;
             font-weight: 600;
             border: none;
             cursor: pointer;
-            transition: transform 0.1s;
+            transition: transform 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-top: 16px;
         }
         
         .search-button:hover {
@@ -238,6 +296,19 @@ def setup():
         
         .search-button i {
             margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .d-flex {
+            display: flex;
+        }
+        
+        .justify-content-end {
+            justify-content: flex-end;
+        }
+        
+        .mt-3 {
+            margin-top: 16px;
         }
         
         .results-section {
@@ -339,6 +410,27 @@ def setup():
             margin-bottom: 8px;
         }
         
+        .tool-input {
+            color: #0056b3;
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #0056b3;
+            margin-bottom: 8px;
+            font-family: 'Menlo', monospace;
+            white-space: pre-wrap;
+        }
+        
+        .param-name {
+            color: #9c27b0;
+            font-weight: bold;
+        }
+        
+        .param-value {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
         .tool-result {
             color: #008A05;
             margin-bottom: 8px;
@@ -356,9 +448,9 @@ def setup():
         
         .listings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            grid-gap: 24px;
-            margin-top: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-gap: 16px;
+            margin-top: 16px;
         }
         
         .listing-card {
@@ -367,6 +459,7 @@ def setup():
             transition: transform 0.2s, box-shadow 0.2s;
             border: 1px solid var(--airbnb-border);
             background-color: #fff;
+            height: 100%;
         }
         
         .listing-card:hover {
@@ -379,6 +472,7 @@ def setup():
             height: 100%;
             text-decoration: none;
             color: var(--airbnb-dark);
+            padding: 12px;
         }
         
         .listing-link:hover {
@@ -386,42 +480,43 @@ def setup():
         }
         
         .listing-info {
-            padding: 24px;
             height: 100%;
             display: flex;
             flex-direction: column;
+            gap: 4px;
         }
         
         .listing-title {
             font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 12px;
+            font-size: 16px;
+            margin-bottom: 6px;
             color: var(--airbnb-dark);
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
-            -webkit-line-clamp: 1;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            line-height: 1.3;
         }
         
         .listing-detail {
             color: var(--airbnb-gray);
             font-size: 14px;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         
         .listing-price {
             font-weight: 600;
             color: var(--airbnb-dark);
-            font-size: 16px;
-            margin-top: 12px;
-            margin-bottom: 8px;
+            font-size: 15px;
+            margin-top: 8px;
+            margin-bottom: 4px;
         }
         
         .listing-rating {
             display: flex;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
         
         .listing-rating i {
@@ -435,12 +530,23 @@ def setup():
             color: var(--airbnb-dark);
         }
         
+        .listing-property-type {
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: var(--airbnb-light-gray);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--airbnb-gray);
+            margin-bottom: 4px;
+        }
+        
         .view-property-button {
             background-color: var(--airbnb-red);
             color: white;
             font-size: 14px;
             font-weight: 600;
-            padding: 10px 16px;
+            padding: 8px 12px;
             border-radius: 8px;
             text-align: center;
             margin-top: auto;
@@ -466,17 +572,6 @@ def setup():
         
         a:hover {
             text-decoration: underline;
-        }
-        
-        .listing-property-type {
-            display: inline-block;
-            padding: 4px 8px;
-            background-color: var(--airbnb-light-gray);
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--airbnb-gray);
-            margin-bottom: 8px;
         }
         
         .listing-badge {
@@ -528,6 +623,129 @@ def setup():
                 grid-template-columns: 1fr;
             }
         }
+        
+        .intro-section {
+            background-color: var(--airbnb-light-gray);
+            padding: 40px 0;
+            margin-bottom: 24px;
+        }
+        
+        .intro-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--airbnb-dark);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .intro-description {
+            font-size: 18px;
+            line-height: 1.5;
+            color: var(--airbnb-gray);
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 32px;
+        }
+        
+        .feature-highlights {
+            display: flex;
+            justify-content: space-around;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            width: 240px;
+        }
+        
+        .feature i {
+            color: var(--airbnb-red);
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .feature span {
+            font-size: 14px;
+            color: var(--airbnb-dark);
+        }
+        
+        /* Results area styling */
+        .result-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Property grid styling */
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .property-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background-color: #fff;
+            height: 100%;
+        }
+        
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        .card-content {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .property-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #222;
+        }
+        
+        .property-card p {
+            color: #717171;
+            margin: 8px 0;
+        }
+        
+        .view-button {
+            margin-top: auto;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #FF5A5F;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        
+        .view-button:hover {
+            background-color: #FF3E44;
+        }
+        
+        .view-button i {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -544,9 +762,18 @@ def setup():
     <!-- Search Form -->
     <div class="search-bar-container">
         <form id="searchForm" class="search-form">
-            <label for="prompt">WHERE TO?</label>
-            <textarea id="prompt" rows="2" placeholder="Tell Claude what you're looking for...">I want to book an apartment in New York City for 2 nights from April 15 to April 17, 2025 for 2 adults</textarea>
-            <div class="d-flex justify-content-end mt-2">
+            <div class="search-container">
+                <textarea id="prompt" rows="3" placeholder="Describe what you're looking for, e.g.: 'I need a place in Manhattan for the first week of June'"></textarea>
+            </div>
+            <div class="search-examples">
+                <span class="examples-title">Try one of these examples:</span>
+                <div class="example-chips">
+                    <span class="example-chip" data-prompt="I'm looking for a place in Manhattan for the first week of June, preferably near Central Park with a nice view. Budget around $200 per night for 2 adults.">Manhattan in June</span>
+                    <span class="example-chip" data-prompt="We need a family-friendly condo in Miami Beach for 2 adults and 2 kids (ages 5 and 7) with a pool, within walking distance to the beach. Looking at dates July 15-22.">Miami family trip</span>
+                    <span class="example-chip" data-prompt="Need a cabin near Lake Tahoe for a ski trip in February. Should be close to ski resorts, have a fireplace, and ideally a hot tub. For a group of 4 adults.">Tahoe ski trip</span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
                 <button type="submit" class="search-button" id="searchButton">
                     <i class="fas fa-search"></i>Search
                 </button>
@@ -585,6 +812,38 @@ def setup():
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
+        // Example chips functionality with expand/collapse
+        document.querySelectorAll('.example-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const prompt = chip.getAttribute('data-prompt');
+                const isExpanded = chip.classList.contains('expanded');
+                
+                // If not expanded, expand it and show full prompt text
+                if (!isExpanded) {
+                    // Reset all chips first
+                    document.querySelectorAll('.example-chip').forEach(c => {
+                        c.classList.remove('expanded');
+                        c.textContent = c.getAttribute('data-original-text') || c.textContent;
+                    });
+                    
+                    // Save original text if not saved already
+                    if (!chip.getAttribute('data-original-text')) {
+                        chip.setAttribute('data-original-text', chip.textContent);
+                    }
+                    
+                    // Expand this chip
+                    chip.classList.add('expanded');
+                    chip.textContent = prompt;
+                } else {
+                    // Collapse and use in search
+                    chip.classList.remove('expanded');
+                    chip.textContent = chip.getAttribute('data-original-text');
+                    document.getElementById('prompt').value = prompt;
+                    document.getElementById('prompt').focus();
+                }
+            });
+        });
+        
         // Tab functionality
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
@@ -619,6 +878,9 @@ def setup():
             
             // Scroll to results
             document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            
+            // Store prompt for use in pollStatus
+            window.lastPrompt = prompt;
             
             // Start the search
             fetch('/search', {
@@ -679,10 +941,59 @@ def setup():
                         const resultContent = document.getElementById('resultContent');
                         resultContent.innerHTML = ''; // Clear any previous content
                         
+                        // Get the prompt from window object
+                        const prompt = window.lastPrompt || '';
+                        
                         // SIMPLIFIED APPROACH - Create a default intro text
                         const introDiv = document.createElement('div');
                         introDiv.className = 'intro-text';
-                        introDiv.textContent = "I've found several apartment options in New York City for your 2-night stay from April 15 to April 17, 2025, for 2 adults.";
+                        
+                        // Extract location from prompt
+                        const promptLocationMatch = prompt.match(/in ([^,\.]+)/i);
+                        const promptLocation = promptLocationMatch ? promptLocationMatch[1] : '';
+                        
+                        // Try to find location and date information from the results
+                        let locationFromResults = '';
+                        let datesFromResults = '';
+                        let guestsFromResults = '';
+                        
+                        // Look for location patterns in the response
+                        const locationRegex = /(New York|Manhattan|Brooklyn|Los Angeles|Miami|San Francisco|Chicago|Boston|Seattle|Austin|Denver|Nashville|Las Vegas)/gi;
+                        const locationMatches = [...data.final_result.matchAll(locationRegex)];
+                        if (locationMatches.length > 0) {
+                            locationFromResults = locationMatches[0][1];
+                        } else if (promptLocation) {
+                            locationFromResults = promptLocation;
+                        }
+                        
+                        // Look for date patterns in the response
+                        const dateRegex = /(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:\s*-\s*\d{1,2})?(?:\s*,\s*\d{4})?/gi;
+                        const dateMatches = [...data.final_result.matchAll(dateRegex)];
+                        if (dateMatches.length > 0) {
+                            datesFromResults = `for ${dateMatches[0][0]}`;
+                        }
+                        
+                        // Look for guest counts in the response
+                        const guestRegex = /(\d+)\s+(?:adult|guest)s?/i;
+                        const guestMatches = data.final_result.match(guestRegex);
+                        if (guestMatches) {
+                            guestsFromResults = `for ${guestMatches[1]} guest${guestMatches[1] > 1 ? 's' : ''}`;
+                        }
+                        
+                        // Construct the intro text
+                        let introText = "I've found several options";
+                        if (locationFromResults) {
+                            introText += ` in ${locationFromResults}`;
+                        }
+                        if (datesFromResults) {
+                            introText += ` ${datesFromResults}`;
+                        }
+                        if (guestsFromResults) {
+                            introText += ` ${guestsFromResults}`;
+                        }
+                        introText += ".";
+                        
+                        introDiv.textContent = introText;
                         resultContent.appendChild(introDiv);
                         
                         // Create a simplified listings grid
@@ -798,9 +1109,6 @@ def setup():
                             // Add the card content
                             card.innerHTML = `
                                 <a href="${listingUrl}" target="_blank" class="listing-link">
-                                    <div class="listing-placeholder">
-                                        <i class="fab fa-airbnb fa-2x"></i>
-                                    </div>
                                     <div class="listing-info">
                                         ${propertyType ? `<div class="listing-property-type">${propertyType}</div>` : ''}
                                         <div class="listing-title">${title}</div>
@@ -875,9 +1183,6 @@ def setup():
                                 // Add the card content with less information
                                 card.innerHTML = `
                                     <a href="${listingUrl}" target="_blank" class="listing-link">
-                                        <div class="listing-placeholder">
-                                            <i class="fab fa-airbnb fa-2x"></i>
-                                        </div>
                                         <div class="listing-info">
                                             <div class="listing-title">${title}</div>
                                             <div class="listing-price">${price} total</div>
@@ -919,6 +1224,25 @@ def setup():
             return logs.map(log => {
                 if (log.includes('Claude is calling tool')) {
                     return `<div class="tool-call">${log}</div>`;
+                } else if (log.includes('Tool input:')) {
+                    // Highlight the parameters that Claude figured out from natural language
+                    const paramRegex = /"([^"]+)":\s*"([^"]+)"/g;
+                    let highlightedLog = log;
+                    let match;
+                    
+                    // Create a copy for highlighting
+                    while ((match = paramRegex.exec(log)) !== null) {
+                        const paramName = match[1];
+                        const paramValue = match[2];
+                        
+                        // Replace with highlighted version
+                        highlightedLog = highlightedLog.replace(
+                            `"${paramName}": "${paramValue}"`,
+                            `"<span class="param-name">${paramName}</span>": "<span class="param-value">${paramValue}</span>"`
+                        );
+                    }
+                    
+                    return `<div class="tool-input">${highlightedLog}</div>`;
                 } else if (log.includes('Tool response') || log.includes('Tool call successful')) {
                     return `<div class="tool-result">${log}</div>`;
                 } else if (log.includes('Error')) {

@@ -50,9 +50,34 @@ async def agent_loop(prompt: str, client: AsyncAnthropic, session: ClientSession
         {"role": "user", "content": prompt}
     ]
     
+    # Adding system prompt to instruct Claude to infer missing details
+    system_prompt = """You are a helpful assistant that helps users find Airbnb listings based on their natural language queries.
+
+When users ask for vacation rentals, ALWAYS use the available tools to help them.
+
+IMPORTANT: If the user's query is missing specific details (like exact dates, number of guests, locations, etc.), 
+NEVER ask clarifying questions. Instead, make reasonable inferences:
+
+1. For dates: If the user mentions a time period like "next month" or "the first week of June", infer a reasonable date range.
+   - For "next month", assume a 3-night stay in the middle of the month
+   - For "first week", choose dates at the beginning of the mentioned period
+   - If no duration is specified, assume a 3-night stay
+
+2. For guests: If not specified, assume 2 adults
+
+3. For location: Use the most specific location mentioned ("Manhattan" instead of just "New York")
+
+4. For prices: Set reasonable default minimum and maximum prices if the user doesn't specify
+
+5. Always prefer to MAKE A TOOL CALL with inferred parameters rather than asking the user for clarification.
+
+6. After getting search results, provide a helpful summary of the best options.
+
+Remember: Your goal is to provide immediate help. MAKE REASONABLE GUESSES rather than asking for more information."""
+    
     response = await client.messages.create(
         model=model,
-        system="",  # No system prompt
+        system=system_prompt,  # Add the system prompt here
         messages=messages,
         temperature=0.2,  # Lower temperature for more deterministic tool use
         max_tokens=4096,
@@ -139,7 +164,7 @@ async def agent_loop(prompt: str, client: AsyncAnthropic, session: ClientSession
             
             response = await client.messages.create(
                 model=model,
-                system="",  # No system prompt
+                system=system_prompt,  # Use the same system prompt here
                 messages=conversation,
                 temperature=0.2,
                 max_tokens=4096,
@@ -152,7 +177,7 @@ async def agent_loop(prompt: str, client: AsyncAnthropic, session: ClientSession
             try:
                 response = await client.messages.create(
                     model=model,
-                    system="",  # No system prompt
+                    system=system_prompt,  # And here as well
                     messages=conversation,
                     temperature=0.2,
                     max_tokens=4096,
