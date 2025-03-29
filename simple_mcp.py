@@ -181,7 +181,7 @@ async def run():
             write,
         ) as session:
             # Single prompt
-            prompt = "I want to book an apartment in Paris for 2 nights from April 15 to April 17, 2025 for 2 adults. Please tell me about a few options."
+            prompt = "I want to book an apartment in New York City for 2 nights from April 15 to April 17, 2025 for 2 adults. Please tell me about a few options."
             print(f"Running agent loop with prompt: {prompt}")
             
             # Run agent loop with the prompt
