@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airbnb MCP via Claude</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='airbnb-style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Additional style for formatted listings to make them stand out */
+        .formatted-listing {
+            background-color: rgba(240, 248, 255, 0.2);
+            border-left: 3px solid #007bff;
+            margin-bottom: 2px;
+            margin-top: 2px;
+        }
+        
+        .formatted-listing .log-message {
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        /* Add a highlighted animation for new log entries */
+        @keyframes highlight {
+            0% { background-color: rgba(255, 235, 59, 0.5); }
+            100% { background-color: transparent; }
+        }
+        
+        .highlighted-entry {
+            animation: highlight 2s ease-in-out;
+        }
+        
+        /* Make formatted listings even more visible */
+        .formatted-listing {
+            background-color: rgba(240, 248, 255, 0.3) !important;
+            border-left: 4px solid #0066ff !important;
+            margin-bottom: 4px !important;
+            margin-top: 4px !important;
+            padding: 8px !important;
+        }
+        
+        /* Style for integration logs to make them visible */
+        .integration-log {
+            background-color: rgba(220, 255, 220, 0.3) !important;
+            border-left: 4px solid #00aa44 !important;
+            margin-bottom: 4px !important;
+            margin-top: 4px !important;
+            padding: 4px !important;
+            font-weight: 500;
+        }
+        
+        .formatted-listing .log-message {
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        /* Add animation for new logs */
+        @keyframes highlightNew {
+            0% { background-color: rgba(255, 255, 170, 0.8); }
+            100% { background-color: transparent; }
+        }
+        
+        .new-log-entry {
+            animation: highlightNew 2s ease-out;
+        }
+        
+        /* Search completion indicator */
+        .search-complete-indicator {
+            background-color: rgba(220, 255, 220, 0.4) !important;
+            border-left: 4px solid #4CAF50 !important;
+            margin-top: 8px !important;
+            margin-bottom: 8px !important;
+            padding: 8px !important;
+            font-weight: bold;
+        }
+        
+        /* Make formatted listings even more visible */
+        .formatted-listing {
+            background-color: rgba(240, 248, 255, 0.3) !important;
+            border-left: 4px solid #0066ff !important;
+            margin-bottom: 4px !important;
+            margin-top: 4px !important;
+            padding: 8px !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="/">
+                    <svg width="30" height="32" style="display:block">
+                        <path d="M29.3864 22.7101C29.2429 22.3073 29.0752 21.9176 28.9157 21.5565C28.6701 21.0011 28.4129 20.4446 28.1641 19.9067L28.1444 19.864C25.9255 15.0589 23.5439 10.1881 21.0659 5.38701L20.9607 5.18316C20.7079 4.69289 20.4466 4.18596 20.1784 3.68786C19.8604 3.0575 19.4745 2.4636 19.0276 1.91668C18.5245 1.31651 17.8956 0.833822 17.1853 0.502654C16.475 0.171486 15.7005 -9.83959e-05 14.9165 4.23317e-08C14.1325 9.84805e-05 13.358 0.171877 12.6477 0.503224C11.9374 0.834571 11.3085 1.31742 10.8054 1.91771C10.3595 2.46476 9.97383 3.05853 9.65572 3.68858C9.38521 4.19115 9.12145 4.70278 8.8664 5.19757L8.76872 5.38696C6.29061 10.1884 3.90903 15.0592 1.69015 19.8639L1.65782 19.9338C1.41334 20.463 1.16057 21.0102 0.919073 21.5563C0.75949 21.9171 0.592009 22.3065 0.448355 22.7103C0.0369063 23.8104 -0.094204 24.9953 0.0668098 26.1585C0.237562 27.334 0.713008 28.4447 1.44606 29.3804C2.17911 30.3161 3.14434 31.0444 4.24614 31.4932C5.07835 31.8299 5.96818 32.002 6.86616 32C7.14824 31.9999 7.43008 31.9835 7.71027 31.9509C8.846 31.8062 9.94136 31.4366 10.9321 30.8639C12.2317 30.1338 13.5152 29.0638 14.9173 27.5348C16.3194 29.0638 17.6029 30.1338 18.9025 30.8639C19.8932 31.4367 20.9886 31.8062 22.1243 31.9509C22.4045 31.9835 22.6864 31.9999 22.9685 32C23.8664 32.002 24.7561 31.8299 25.5883 31.4932C26.6901 31.0444 27.6554 30.3161 28.3885 29.3804C29.1216 28.4447 29.5971 27.3341 29.7679 26.1585C29.9287 24.9952 29.7976 23.8103 29.3864 22.7101ZM14.9173 24.377C13.1816 22.1769 12.0678 20.1338 11.677 18.421C11.5169 17.7792 11.4791 17.1131 11.5656 16.4573C11.6339 15.9766 11.8105 15.5176 12.0821 15.1148C12.4163 14.6814 12.8458 14.3304 13.3374 14.0889C13.829 13.8475 14.3696 13.7219 14.9175 13.7219C15.4655 13.722 16.006 13.8476 16.4976 14.0892C16.9892 14.3307 17.4186 14.6817 17.7528 15.1151C18.0244 15.5181 18.201 15.9771 18.2693 16.4579C18.3556 17.114 18.3177 17.7803 18.1573 18.4223C17.7661 20.1349 16.6526 22.1774 14.9173 24.377ZM27.7406 25.8689C27.6212 26.6908 27.2887 27.4674 26.7762 28.1216C26.2636 28.7759 25.5887 29.2852 24.8183 29.599C24.0393 29.9111 23.1939 30.0217 22.3607 29.9205C21.4946 29.8089 20.6599 29.5239 19.9069 29.0824C18.7501 28.4325 17.5791 27.4348 16.2614 25.9712C18.3591 23.3846 19.669 21.0005 20.154 18.877C20.3723 17.984 20.4196 17.0579 20.2935 16.1475C20.1791 15.3632 19.8879 14.615 19.4419 13.9593C18.9194 13.2519 18.2378 12.6768 17.452 12.2805C16.6661 11.8842 15.798 11.6777 14.9175 11.6777C14.0371 11.6777 13.1689 11.8841 12.383 12.2803C11.5971 12.6765 10.9155 13.2515 10.393 13.9589C9.94707 14.6144 9.65591 15.3624 9.5414 16.1465C9.41524 17.0566 9.4624 17.9822 9.68065 18.8749C10.1654 20.9993 11.4748 23.384 13.5732 25.9714C12.2555 27.4348 11.0845 28.4325 9.92769 29.0825C9.17468 29.5239 8.34007 29.809 7.47395 29.9205C6.64065 30.0217 5.79525 29.9111 5.0162 29.599C4.24581 29.2852 3.57092 28.7759 3.05838 28.1217C2.54585 27.4674 2.21345 26.6908 2.09411 25.8689C1.97932 25.0334 2.07701 24.1825 2.37818 23.3946C2.49266 23.0728 2.62663 22.757 2.7926 22.3818C3.0274 21.851 3.27657 21.3115 3.5244 20.7898L3.5244 20.7898C5.76063 16.0214 8.13819 11.1531 10.639 6.3447L10.6390 6.3447L10.7343 6.1711C11.0032 5.64801 11.2798 5.11163 11.559 4.6199C11.8338 4.13016 12.1313 3.68262 12.4965 3.3126C13.1061 2.69651 13.8701 2.3084 14.6950 2.20347C15.5198 2.09787 16.3606 2.28496 17.0856 2.73464C17.5835 3.05nominee "listName" 3.13747 17.9913 3.55301 18.3121 3.99996C18.5903 4.48008 18.8669 5.01815 19.1358 5.54122L19.2311 5.71478C21.7316 10.5232 24.1092 15.3914 26.3454 20.1598L26.3454 20.1598C26.5932 20.6815 26.8424 21.221 27.0272 21.7208C27.1932 22.0959 27.3271 22.4117 27.4416 22.7335C27.7429 23.5213 27.8406 24.3721 27.7406 25.8689Z" fill="currentcolor"></path>
+                    </svg>
+                    <span>Airbnb MCP via Claude</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <!-- Search Form -->
+        <div class="search-container">
+            <div class="search-content">
+                <h1>Find your perfect stay with natural language</h1>
+                <p class="search-description">Just describe what you're looking for, and we'll find it for you.</p>
+                
+                <form id="search-form" action="/search" method="post" class="nl-search-form">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            name="query" 
+                            id="query-input" 
+                            class="nl-search-input" 
+                            placeholder="e.g., 'Weekend trip to San Francisco for 2 adults in July'"
+                            required
+                        >
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="example-queries">
+                    <h3>Try one of these examples:</h3>
+                    <div class="example-buttons">
+                        <button class="example-button" data-query="Business trip to Chicago for 3 nights in June">
+                            Business trip to Chicago
+                        </button>
+                        <button class="example-button" data-query="Romantic weekend in Paris for 2 people next month">
+                            Romantic weekend in Paris
+                        </button>
+                        <button class="example-button" data-query="Family vacation in Orlando for 4 people for a week in July">
+                            Family vacation in Orlando
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div id="results-container" style="display: none;">
+            <div id="loading" class="loading-container">
+                <div class="spinner"></div>
+                <p>Searching for the perfect stay...</p>
+            </div>
+            
+            <div id="error" class="error-container" style="display: none;">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h2>Oops! Something went wrong</h2>
+                <p id="error-message"></p>
+                <button class="back-button" onclick="resetSearch()">Try Again</button>
+            </div>
+            
+            <!-- Show tabs immediately during search process -->
+            <div id="results" class="results-container">
+                <!-- Tab navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-button" data-tab="listings-tab">Listings</button>
+                    <button class="tab-button active" data-tab="debug-tab">Search Details</button>
+                </div>
+                
+                <!-- Listings Tab - hidden during search -->
+                <div id="listings-tab" class="tab-content">
+                    <div class="query-info">
+                        <div class="query-box">
+                            <h3>Your search</h3>
+                            <p id="original-query"></p>
+                            <button id="new-search-btn" class="secondary-button" onclick="resetSearch()">
+                                <i class="fas fa-redo"></i> New Search
+                            </button>
+                        </div>
+                        <div class="interpretation-box">
+                            <h3>We understood this as</h3>
+                            <div id="search-params" class="search-params">
+                                <div class="param-item">
+                                    <span class="param-label">Location:</span>
+                                    <span id="location-param" class="param-value"></span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">Check-in:</span>
+                                    <span id="checkin-param" class="param-value"></span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">Check-out:</span>
+                                    <span id="checkout-param" class="param-value"></span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">Guests:</span>
+                                    <span id="adults-param" class="param-value"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="results-count">
+                        <h2 id="results-title">Searching...</h2>
+                    </div>
+                    
+                    <div id="listings-grid" class="listings-grid">
+                        <!-- Listing cards will be inserted here -->
+                    </div>
+                    
+                    <div id="no-results" class="no-results" style="display: none;">
+                        <div class="no-results-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h2>No listings found</h2>
+                        <p>Try adjusting your search parameters or exploring a different location.</p>
+                        <button class="back-button" onclick="resetSearch()">New Search</button>
+                    </div>
+                </div>
+                
+                <!-- Debug Tab - visible during search -->
+                <div id="debug-tab" class="tab-content active">
+                    <div class="debug-container">
+                        <h2>Search Interaction Details</h2>
+                        <p class="debug-description">This panel shows the interactions between the app, Claude, and MCP during your search.</p>
+                        
+                        <div class="debug-timeline">
+                            <h3>Interaction Timeline</h3>
+                            
+                            <div class="debug-tabs">
+                                <button class="debug-tab active" data-filter="all">All Logs</button>
+                                <button class="debug-tab" data-filter="integration">Integration</button>
+                                <button class="debug-tab" data-filter="claude">Claude AI</button>
+                                <button class="debug-tab" data-filter="mcp">Airbnb MCP</button>
+                                <button class="debug-tab" data-filter="error">Errors</button>
+                                <button id="scroll-to-bottom" class="debug-action-button"><i class="fas fa-arrow-down"></i> Latest</button>
+                            </div>
+                            
+                            <div id="debug-logs" class="debug-logs">
+                                <div class="loading-info">Loading interaction details...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Airbnb MCP via Claude. Demo application. </p>
+        </div>
+    </footer>
+    
+    <script>
+        // Global variables for logs and status
+        let lastLogCount = 0;
+        let logEvtSource = null;
+        let statusEvtSource = null;
+        let formattedListingsReceived = {}; // Track formatted listings we've seen
+        let isProcessingLogUpdate = false; // Prevent concurrent processing of logs
+        let isSearchDetailsActive = true; // Track if the search details tab is active
+        
+        // Tab functionality for main tabs
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('tab-button')) {
+                // Remove active class from all buttons and content
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                e.target.classList.add('active');
+                document.getElementById(e.target.dataset.tab).classList.add('active');
+                
+                // Manage SSE connections based on tab visibility
+                manageSSEConnections();
+            }
+            
+            if (e.target.classList.contains('debug-tab')) {
+                // Remove active class from all debug tabs
+                document.querySelectorAll('.debug-tab').forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                e.target.classList.add('active');
+                
+                // Apply the new filter
+                applyLogFilter(e.target.dataset.filter);
+            }
+        });
+        
+        // Function to manage SSE connections based on tab visibility
+        function manageSSEConnections() {
+            const isDebugTabActive = document.querySelector('.tab-button[data-tab="debug-tab"]').classList.contains('active');
+            
+            console.log('Managing SSE connections - debug tab active:', isDebugTabActive);
+            
+            if (isDebugTabActive) {
+                // Debug tab is active, ensure log connection is established
+                if (!logEvtSource || logEvtSource.readyState === EventSource.CLOSED) {
+                    console.log('Debug tab active, establishing log SSE connection');
+                    setupDebugLogsSSE();
+                }
+            } else {
+                // Debug tab is not active, close log connection to save resources
+                if (logEvtSource) {
+                    console.log('Debug tab inactive, closing log SSE connection');
+                    logEvtSource.close();
+                    logEvtSource = null;
+                }
+            }
+            
+            // Always maintain status connection for search state
+            if (!statusEvtSource || statusEvtSource.readyState === EventSource.CLOSED) {
+                setupStatusSSE();
+            }
+            
+            // Update tracking of search details visibility
+            isSearchDetailsActive = isDebugTabActive;
+        }
+        
+        // Function to handle new log data from SSE
+        function handleNewLogData(logData) {
+            if (logData.heartbeat) {
+                // Just a heartbeat to keep the connection alive
+                console.log('SSE heartbeat received');
+                return;
+            }
+            
+            // Prevent concurrent processing which could cause excessive DOM updates
+            if (isProcessingLogUpdate) {
+                console.log('Already processing log update, deferring...');
+                setTimeout(() => handleNewLogData(logData), 50);
+                return;
+            }
+            
+            isProcessingLogUpdate = true;
+            
+            try {
+                console.log('Processing log update:', logData.message ? logData.message.substring(0, 30) + '...' : 'No message');
+                
+                // Check if this is a formatted listing or integration log
+                const isFormattedListing = 
+                    logData.message && (
+                        logData.message.includes('FORMATTED LISTING') || 
+                        logData.message.includes('====================')
+                    );
+                
+                const isIntegrationLog = logData.message && logData.message.includes('INTEGRATION:');
+                
+                if (isFormattedListing) {
+                    console.log('IMPORTANT: Received formatted listing log');
+                }
+                
+                if (isIntegrationLog) {
+                    console.log('IMPORTANT: Received integration log');
+                }
+                
+                const logsContainer = document.getElementById('debug-logs');
+                const activeFilter = document.querySelector('.debug-tab.active').dataset.filter;
+                
+                if (lastLogCount === 0 || document.querySelector('.log-timeline') === null) {
+                    // First log or no timeline exists yet - create the container
+                    logsContainer.innerHTML = '<div class="log-timeline"></div>';
+                }
+                
+                const timelineContainer = document.querySelector('.log-timeline');
+                
+                // Process the log
+                const log = logData;
+                const date = new Date(log.timestamp * 1000);
+                const timeStr = date.toLocaleTimeString();
+                let logClass = 'log-info';
+                
+                if (log.level === 'ERROR') {
+                    logClass = 'log-error';
+                } else if (log.level === 'WARNING') {
+                    logClass = 'log-warning';
+                }
+                
+                // Track if this log should be displayed in the current filter
+                let shouldDisplayInCurrentFilter = false;
+                
+                // Determine the appropriate class and which filters this log should appear in
+                let additionalClass = '';
+                let applicableFilters = ['all']; // Always include 'all' filter
+                
+                if (isFormattedListing) {
+                    additionalClass = 'formatted-listing highlighted-entry';
+                    applicableFilters.push('mcp');
+                    shouldDisplayInCurrentFilter = (activeFilter === 'all' || activeFilter === 'mcp');
+                }
+                else if (isIntegrationLog) {
+                    additionalClass = 'integration-log highlighted-entry';
+                    applicableFilters.push('integration');
+                    applicableFilters.push('mcp'); // Show in more filters for visibility
+                    shouldDisplayInCurrentFilter = applicableFilters.includes(activeFilter);
+                }
+                else if (log.message.includes('HTTP') && (log.message.includes('GET') || log.message.includes('POST') || log.message.includes('Response'))) {
+                    // Skip HTTP requests and responses in ALL views
+                    shouldDisplayInCurrentFilter = false;
+                    applicableFilters = [];
+                }
+                else if (log.message.includes('Claude') || log.message.includes('JSON') || log.message.includes('parameter extraction')) {
+                    additionalClass = 'claude-interaction';
+                    applicableFilters.push('claude');
+                    shouldDisplayInCurrentFilter = applicableFilters.includes(activeFilter);
+                } 
+                else if (log.message.includes('MCP') || log.message.includes('search results') || log.message.includes('listing') || log.message.includes('LISTING')) {
+                    additionalClass = 'mcp-interaction';
+                    applicableFilters.push('mcp');
+                    shouldDisplayInCurrentFilter = applicableFilters.includes(activeFilter);
+                } 
+                else {
+                    // Default logs should show in 'all' filter
+                    shouldDisplayInCurrentFilter = (activeFilter === 'all');
+                }
+                
+                // Special case for error filter - show any error regardless of category
+                if (log.level === 'ERROR') {
+                    applicableFilters.push('error');
+                    shouldDisplayInCurrentFilter = shouldDisplayInCurrentFilter || activeFilter === 'error';
+                }
+                
+                // Create the log entry HTML
+                const logEntryHTML = `
+                    <div class="log-time">${timeStr}</div>
+                    <div class="log-level">${log.level}</div>
+                    <div class="log-message">${log.message}</div>
+                `;
+                
+                // If this log should be shown in the current filter, add it to the timeline
+                if (shouldDisplayInCurrentFilter) {
+                    // Create and append the log entry
+                    const logEntry = document.createElement('div');
+                    logEntry.className = `log-entry ${logClass} ${additionalClass} new-log-entry`;
+                    logEntry.setAttribute('data-filters', applicableFilters.join(','));
+                    logEntry.innerHTML = logEntryHTML;
+                    timelineContainer.appendChild(logEntry);
+                    
+                    // Force scroll to bottom immediately to show newest logs
+                    timelineContainer.scrollTop = timelineContainer.scrollHeight;
+                    
+                    // Remove the highlight class after animation completes
+                    setTimeout(() => {
+                        logEntry.classList.remove('new-log-entry');
+                    }, 2000);
+                    
+                    // Update tracking
+                    lastLogCount++;
+                } else {
+                    console.log(`Log filtered out for current filter (${activeFilter}): ${log.message.substring(0, 30)}...`);
+                }
+            } finally {
+                isProcessingLogUpdate = false;
+            }
+        }
+        
+        // Function to handle status updates from SSE
+        function handleStatusUpdate(statusData) {
+            console.log('Status SSE update received:', statusData);
+            
+            if (statusData.heartbeat) {
+                // Just a heartbeat to keep the connection alive
+                return;
+            }
+            
+            if (statusData.status === 'searching') {
+                // Still searching, keep showing loading and debug tab
+                document.getElementById('loading').style.display = 'flex';
+                
+                // Make sure debug tab is active during search
+                if (!document.querySelector('.tab-button[data-tab="debug-tab"]').classList.contains('active')) {
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.querySelector('.tab-button[data-tab="debug-tab"]').classList.add('active');
+                    document.getElementById('debug-tab').classList.add('active');
+                }
+            } else if (statusData.status === 'done') {
+                // Search complete, update UI
+                document.getElementById('loading').style.display = 'none';
+                
+                // DON'T automatically switch to listings tab - leave the current tab active
+                // Instead, just update the listings tab content
+                
+                // Update interpretation box
+                if (statusData.params) {
+                    document.getElementById('location-param').textContent = statusData.params.location || 'Not specified';
+                    document.getElementById('checkin-param').textContent = statusData.params.checkin || 'Not specified';
+                    document.getElementById('checkout-param').textContent = statusData.params.checkout || 'Not specified';
+                    document.getElementById('adults-param').textContent = statusData.params.adults || 'Not specified';
+                }
+                
+                if (statusData.results && statusData.results.length > 0) {
+                    // Update results count
+                    document.getElementById('results-title').textContent = 
+                        `${statusData.results.length} stays found in ${statusData.params.location}`;
+                    
+                    // Create listing cards
+                    const listingsGrid = document.getElementById('listings-grid');
+                    listingsGrid.innerHTML = ''; // Clear previous results
+                    
+                    statusData.results.forEach(listing => {
+                        // Debug output - more extensive to diagnose why titles aren't showing
+                        console.log('LISTING DATA (FULL):', JSON.stringify(listing, null, 2));
+                        console.log('Title property:', listing.title);
+                        console.log('Name property:', listing.name);
+                        console.log('Type property:', listing.type);
+                        console.log('RoomType property:', listing.roomType);
+                        
+                        // Create card element
+                        const card = document.createElement('div');
+                        card.className = 'listing-card';
+                        
+                        // Create HTML for the card - prioritize title or name
+                        const displayTitle = listing.title || listing.name || 'Airbnb Listing';
+                        const displaySubtitle = (listing.title && listing.name && listing.title !== listing.name) ? listing.name : '';
+                        
+                        console.log('Using displayTitle:', displayTitle);
+                        console.log('Using displaySubtitle:', displaySubtitle);
+                        
+                        card.innerHTML = `
+                            <div class="listing-content">
+                                <div class="listing-header">
+                                    <h3 class="listing-title">
+                                        <a href="${listing.url}" target="_blank" class="listing-link">
+                                            ${displayTitle}
+                                        </a>
+                                    </h3>
+                                    ${displaySubtitle ? `<div class="listing-subtitle">${displaySubtitle}</div>` : ''}
+                                    <div class="listing-rating">
+                                        ${listing.avgRatingA11yLabel ? `<span class="rating-full">${listing.avgRatingA11yLabel}</span>` : ''}
+                                    </div>
+                                </div>
+                                
+                                ${listing.isSuperhost ? '<div class="superhost-badge-inline"><i class="fas fa-medal"></i> Superhost</div>' : ''}
+                                <div class="listing-details">
+                                    ${listing.structuredContent ? `
+                                    <div class="structured-content">
+                                        <p class="primary-line">${listing.structuredContent.primaryLine || ''}</p>
+                                    </div>` : ''}
+                                    
+                                    <p class="listing-type">${listing.type || listing.roomType || 'Entire place'} · ${listing.city || listing.location || statusData.params.location}</p>
+                                    
+                                    <div class="listing-price">
+                                        ${listing.structuredDisplayPrice && listing.structuredDisplayPrice.primaryLine ? 
+                                        `<span class="price">${listing.structuredDisplayPrice.primaryLine.accessibilityLabel || listing.price || '$100'}</span>` : 
+                                        `<span class="price">${listing.price || '$100'}</span>`}
+                                        
+                                        ${listing.structuredDisplayPrice && listing.structuredDisplayPrice.secondaryLine ? 
+                                        `<span class="secondary-price">${listing.structuredDisplayPrice.secondaryLine.accessibilityLabel || ''}</span>` : 
+                                        (listing.totalPrice ? `<span class="total"> total</span>` : ' night')}
+                                    </div>
+                                    
+                                    ${listing.amenities ? `
+                                    <div class="amenities">
+                                        <p class="amenities-title">Amenities:</p>
+                                        <ul class="amenities-list">
+                                            ${Array.isArray(listing.amenities) ? 
+                                              listing.amenities.slice(0, 3).map(amenity => `<li>${amenity}</li>`).join('') : ''}
+                                            ${Array.isArray(listing.amenities) && listing.amenities.length > 3 ? 
+                                              `<li>+${listing.amenities.length - 3} more</li>` : ''}
+                                        </ul>
+                                    </div>` : ''}
+                                </div>
+                                <a href="${listing.url}" target="_blank" class="view-listing-btn">View on Airbnb</a>
+                            </div>
+                        `;
+                        
+                        listingsGrid.appendChild(card);
+                    });
+                    
+                    // Add indicator that search is complete on the debug tab
+                    const logsContainer = document.querySelector('.log-timeline');
+                    if (logsContainer) {
+                        const searchCompleteNote = document.createElement('div');
+                        searchCompleteNote.className = 'log-entry log-info search-complete-indicator';
+                        searchCompleteNote.innerHTML = `
+                            <div class="log-time">${new Date().toLocaleTimeString()}</div>
+                            <div class="log-level">INFO</div>
+                            <div class="log-message">✅ Search complete - ${statusData.results.length} listings found. You can view them in the Listings tab.</div>
+                        `;
+                        logsContainer.appendChild(searchCompleteNote);
+                        logsContainer.scrollTop = logsContainer.scrollHeight;
+                    }
+                } else {
+                    // No results found
+                    document.getElementById('no-results').style.display = 'block';
+                }
+            } else if (statusData.status === 'error') {
+                // Error occurred
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error-message').textContent = statusData.message || 'Unknown error occurred';
+                
+                // Hide results container in case of error
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+        
+        // Function to setup SSE connection for debug logs
+        function setupDebugLogsSSE() {
+            console.log('Setting up debug logs SSE connection');
+            
+            // Close existing connection if any
+            if (logEvtSource) {
+                logEvtSource.close();
+                logEvtSource = null;
+            }
+            
+            // Create a new EventSource
+            logEvtSource = new EventSource('/debug_logs_sse');
+            
+            // Handle connection open
+            logEvtSource.onopen = function() {
+                console.log('Debug logs SSE connection established');
+                
+                // Add visual indication that we're connected
+                const logsContainer = document.getElementById('debug-logs');
+                if (logsContainer.innerHTML.includes('Loading interaction details')) {
+                    logsContainer.innerHTML = '<div class="log-timeline"><div class="log-entry log-info">SSE connection ready. Waiting for logs...</div></div>';
+                }
+                
+                // Send a ping to server to ensure connection is active
+                fetch('/status', { cache: 'no-store' }).catch(e => console.log('Error pinging server:', e));
+            };
+            
+            // Handle incoming messages
+            logEvtSource.onmessage = function(event) {
+                try {
+                    console.log('Raw SSE message received:', event.data);
+                    const logData = JSON.parse(event.data);
+                    console.log('Parsed SSE message:', logData);
+                    handleNewLogData(logData);
+                } catch (error) {
+                    console.error('Error parsing log data:', error, event.data);
+                }
+            };
+            
+            // Handle errors
+            logEvtSource.onerror = function(error) {
+                console.error('Debug logs SSE error:', error);
+                
+                // Visual indication of error
+                const logsContainer = document.getElementById('debug-logs');
+                if (logsContainer.innerHTML.includes('Loading interaction details')) {
+                    logsContainer.innerHTML = '<div class="log-timeline"><div class="log-entry log-error">SSE connection error. Reconnecting...</div></div>';
+                }
+                
+                // Attempt to reconnect after 3 seconds
+                setTimeout(function() {
+                    if (logEvtSource.readyState === EventSource.CLOSED) {
+                        console.log('Attempting to reconnect debug logs SSE...');
+                        setupDebugLogsSSE();
+                    }
+                }, 3000);
+            };
+            
+            // Ensure connection stays alive with periodic pings
+            setInterval(() => {
+                if (logEvtSource && logEvtSource.readyState === EventSource.OPEN) {
+                    console.log('Sending keepalive ping');
+                    // Use a lightweight endpoint to keep the connection alive
+                    fetch('/ping', { cache: 'no-store' })
+                        .then(response => response.json())
+                        .then(data => console.log('Ping response:', data))
+                        .catch(e => console.log('Error pinging server:', e));
+                } else if (logEvtSource && logEvtSource.readyState === EventSource.CLOSED) {
+                    console.log('SSE connection closed, attempting to reconnect...');
+                    setupDebugLogsSSE();
+                }
+            }, 15000); // Every 15 seconds
+        }
+        
+        // Function to setup SSE connection for status updates
+        function setupStatusSSE() {
+            console.log('Setting up status SSE connection');
+            
+            // Close existing connection if any
+            if (statusEvtSource) {
+                statusEvtSource.close();
+                statusEvtSource = null;
+            }
+            
+            // Create a new EventSource
+            statusEvtSource = new EventSource('/status_sse');
+            
+            // Handle connection open
+            statusEvtSource.onopen = function() {
+                console.log('Status SSE connection established');
+            };
+            
+            // Handle incoming messages
+            statusEvtSource.onmessage = function(event) {
+                try {
+                    const statusData = JSON.parse(event.data);
+                    handleStatusUpdate(statusData);
+                } catch (error) {
+                    console.error('Error parsing status data:', error);
+                }
+            };
+            
+            // Handle errors
+            statusEvtSource.onerror = function(error) {
+                console.error('Status SSE error:', error);
+                // Attempt to reconnect after 5 seconds
+                setTimeout(function() {
+                    if (statusEvtSource.readyState === EventSource.CLOSED) {
+                        console.log('Attempting to reconnect status SSE...');
+                        setupStatusSSE();
+                    }
+                }, 5000);
+            };
+        }
+
+        // Override fetch to block polling calls
+        const originalFetch = window.fetch;
+        window.fetch = function() {
+            const url = arguments[0];
+            console.log('Fetch call to URL:', url);
+            
+            // If this is a URL we're trying to block (polling endpoints)
+            if (typeof url === 'string' && 
+                (url === '/status' || url === '/debug_logs' || 
+                 url.endsWith('/status') || url.endsWith('/debug_logs'))) {
+                console.warn('⚠️ Polling detected! Fetch call to', url, 'was BLOCKED. Use SSE instead.');
+                console.trace('Fetch call stack');
+                
+                // Return a fake response to prevent the request from going to the server
+                return Promise.resolve(new Response(JSON.stringify({
+                    status: "blocked",
+                    message: "Polling has been disabled. Use SSE endpoints instead."
+                }), {
+                    status: 200,
+                    headers: {'Content-Type': 'application/json'}
+                }));
+            }
+            
+            // Allow all other fetch calls to proceed normally
+            return originalFetch.apply(this, arguments);
+        }
+
+        // Apply log filter WITHOUT creating a new SSE connection - just filter existing logs
+        function applyLogFilter(filter) {
+            console.log('Applying log filter:', filter);
+            
+            // Identify the active filter button and update its state
+            document.querySelectorAll('.debug-tab').forEach(tab => {
+                if (tab.dataset.filter === filter) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            const logsContainer = document.getElementById('debug-logs');
+            
+            // Create a new timeline if it doesn't exist
+            if (!document.querySelector('.log-timeline')) {
+                logsContainer.innerHTML = '<div class="log-timeline"></div>';
+            }
+            
+            // Get all existing log entries
+            const allLogEntries = document.querySelectorAll('.log-entry');
+            
+            // Display or hide each log entry based on the filter
+            allLogEntries.forEach(entry => {
+                const applicableFilters = (entry.getAttribute('data-filters') || 'all').split(',');
+                
+                if (applicableFilters.includes(filter)) {
+                    entry.style.display = '';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+            
+            // Scroll to the latest visible log
+            const timelineContainer = document.querySelector('.log-timeline');
+            if (timelineContainer) {
+                timelineContainer.scrollTop = timelineContainer.scrollHeight;
+            }
+        }
+        
+        // Reset search function
+        function resetSearch() {
+            document.getElementById('results-container').style.display = 'none';
+            document.getElementById('query-input').value = '';
+            document.getElementById('query-input').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Initialize page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up example query buttons
+            document.querySelectorAll('.example-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.getElementById('query-input').value = button.dataset.query;
+                });
+            });
+            
+            // Set up search form submission
+            document.getElementById('search-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const queryInput = document.getElementById('query-input');
+                const query = queryInput.value.trim();
+                
+                if (query.length === 0) {
+                    return;
+                }
+                
+                // Show the results container
+                document.getElementById('results-container').style.display = 'block';
+                document.getElementById('loading').style.display = 'flex';
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('error').style.display = 'none';
+                document.getElementById('original-query').textContent = query;
+                
+                // Clear previous results
+                document.getElementById('listings-grid').innerHTML = '';
+                document.getElementById('no-results').style.display = 'none';
+                
+                // Reset debug logs
+                console.log('Resetting debug logs for new search');
+                const logsContainer = document.getElementById('debug-logs');
+                logsContainer.innerHTML = '<div class="loading-info">Loading interaction details...</div>';
+                lastLogCount = 0;
+                
+                // Make sure debug tab is active during search
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.querySelector('.tab-button[data-tab="debug-tab"]').classList.add('active');
+                document.getElementById('debug-tab').classList.add('active');
+                
+                // Force a reset of the log connection to get fresh logs for this search
+                if (logEvtSource) {
+                    logEvtSource.close();
+                    logEvtSource = null;
+                }
+                
+                // Refresh the SSE connections only if we're on the search details tab
+                isSearchDetailsActive = true;
+                manageSSEConnections();
+                
+                // Set up AJAX for search
+                const formData = new FormData();
+                formData.append('query', query);
+                
+                console.log('Sending search request with query:', query);
+                fetch('/search', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Search request response:', data);
+                })
+                .catch(error => {
+                    console.error('Error sending search request:', error);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error-message').textContent = 'Network error occurred. Please try again.';
+                });
+                
+                // Smooth scroll to results
+                document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Set up scroll to bottom button
+            document.getElementById('scroll-to-bottom').addEventListener('click', function() {
+                const logsContainer = document.getElementById('debug-logs');
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            });
+            
+            // Manage SSE connections based on initial tab state
+            manageSSEConnections();
+            
+            // Handle visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible' && isSearchDetailsActive) {
+                    console.log('Tab became visible and search details is active, refreshing logs');
+                    
+                    // Force a re-render of the logs by reapplying the current filter
+                    const currentFilter = document.querySelector('.debug-tab.active').dataset.filter;
+                    applyLogFilter(currentFilter);
+                    
+                    // Ensure SSE connections are properly managed
+                    manageSSEConnections();
+                    
+                    // Scroll to the bottom of the log container
+                    const timelineContainer = document.querySelector('.log-timeline');
+                    if (timelineContainer) {
+                        setTimeout(() => {
+                            timelineContainer.scrollTop = timelineContainer.scrollHeight;
+                        }, 100);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
